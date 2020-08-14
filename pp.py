@@ -20,31 +20,39 @@
 # If fails exit code is > 0
 # ********************************************************
 
-import requests
-import io, os, sys, csv, time, calendar
-import puremagic
+import os
+import sys
+import csv
+import time
+import calendar
 import urllib.parse
-import xlrd, mmap
+import puremagic
+import requests
 import xlsxwriter as xs
 from bs4 import BeautifulSoup
 from fuzzywuzzy import fuzz
 
-def err(s=None):
+def err(msg=None):
     """
     Converts string to bytes & Outputs to stderr
     """
-    if not s:
+    if not msg:
         return
-    s= s + "\n"
-    os.write(2, s.encode())
+    msg = msg + "\n"
+    os.write(2, msg.encode())
 
 def is_valid_file(fname=None):
+    """Validates if file exists"""
     if not fname:
         return False
     fname = fname.strip()
     return os.path.isfile(fname)
 
 def google_search(paper_title=None):
+    """
+    Applies a google search for a given paper title
+    returning list of results key/value of link, title, description
+    """
     global GOOGLE_SEARCH_URL
     global USER_AGENT
     results = []
@@ -263,6 +271,7 @@ def main():
 # Global Variables
 # ==========================
 GOOGLE_SEARCH_URL = "https://google.com/search?"
+PUBMED_SEARCH_URL = "https://www.ncbi.nlm.nih.gov/pmc/?" # PMC = PubMed Central
 USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:65.0) Gecko/20100101 Firefox/65.0"
 ID = "Manuscript ID"
 TITLE = "Manuscript Title"
