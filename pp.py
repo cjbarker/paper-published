@@ -26,6 +26,7 @@ import csv
 import time
 import calendar
 import urllib.parse
+import xlrd
 import puremagic
 import requests
 import xlsxwriter as xs
@@ -47,6 +48,71 @@ def is_valid_file(fname=None):
         return False
     fname = fname.strip()
     return os.path.isfile(fname)
+
+def pubmed_search(paper_title=None):
+    """
+    Applies a PubMed Central search for a given paper title
+    returning list of results key/value of link, title, description
+    """
+    global PUBMED_SEARCH_URL
+    global USER_AGENT
+    results = []
+
+    if not paper_title:
+        return results
+
+    # extract out top level domain/URL for PMC
+    n = 3
+    groups = PUBMED_SEARCH_URL.split('/')
+    groupings = '/'.join(groups[:n]), '/'.join(groups[n:])
+    pmc_base_url = groupings[0]
+    #print(pmc_base_url)
+
+    # encode query string param before search
+    params = {'term': paper_title}
+    query = urllib.parse.urlencode(params, quote_via=urllib.parse.quote)
+    url = PUBMED_SEARCH_URL + query
+    #print(url)
+
+    # desktop user-agent; expected by google in HTTP header
+    headers = {"user-agent" : USER_AGENT}
+    resp = requests.get(url, headers=headers)
+
+    # check if valid response
+    if resp.status_code != 200:
+        err("Failed - unsuccessful response from PubMed Central status code: " + str(resp.status_code))
+        return results
+
+    # parse HTTP response and pull out search results
+    soup = BeautifulSoup(resp.content, "html.parser")
+
+    # PMC returns 20 results per page - only pull from first page results
+    for r in soup.find_all('div', class_='rslt'):
+        title = r.find('div', class_='title')
+        anchors = title.find_all('a')
+        desc = r.find('div', class_='desc')
+        details = r.find('div', class_='details')
+
+        link = pmc_base_url + anchors[0].get('href')
+        title = title.text
+        description = ""
+        if desc:
+            description = desc.text
+        if details:
+            description = description + "\n" + details.text
+
+        print("Link ", link)
+        print("Title", title)
+        print("Description", description, "\n")
+
+        item = {
+            "title": title,
+            "link": link,
+            "description": description
+        }
+        results.append(item)
+
+    return results
 
 def google_search(paper_title=None):
     """
@@ -176,8 +242,6 @@ def extract_csv(fname=None, search_hdrs=None):
 # ----------------------------------------------------------------------
 
 def main():
-    global GOOGLE_SEARCH_URL
-    global USER_AGENT
     global FILE_SEARCH_HDRS
     global TITLE
 
@@ -221,7 +285,8 @@ def main():
 
     for rec in search_records:
         #print("Searching: " + rec[ID] + "-" + rec[TITLE])
-        results = google_search(rec[TITLE])
+        #results = google_search(rec[TITLE])
+        results = pubmed_search(rec[TITLE])
         time.sleep(THROTTLE_SECS)   # avoid being blocked by google - rate limit calls
 
         # check direct or partial ratio match on title
