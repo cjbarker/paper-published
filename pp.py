@@ -44,8 +44,8 @@ def is_valid_file(fname=None):
     fname = fname.strip()
     return os.path.isfile(fname)
 
-def search(paper_title=None):
-    global SEARCH_URL
+def google_search(paper_title=None):
+    global GOOGLE_SEARCH_URL
     global USER_AGENT
     results = []
 
@@ -55,7 +55,7 @@ def search(paper_title=None):
     # encode query string param before search
     params = {'q': paper_title}
     query = urllib.parse.urlencode(params, quote_via=urllib.parse.quote)
-    url = SEARCH_URL + query
+    url = GOOGLE_SEARCH_URL + query
     #print(url)
 
     # desktop user-agent; expected by google in HTTP header
@@ -168,7 +168,7 @@ def extract_csv(fname=None, search_hdrs=None):
 # ----------------------------------------------------------------------
 
 def main():
-    global SEARCH_URL
+    global GOOGLE_SEARCH_URL
     global USER_AGENT
     global FILE_SEARCH_HDRS
     global TITLE
@@ -213,7 +213,7 @@ def main():
 
     for rec in search_records:
         #print("Searching: " + rec[ID] + "-" + rec[TITLE])
-        results = search(rec[TITLE])
+        results = google_search(rec[TITLE])
         time.sleep(THROTTLE_SECS)   # avoid being blocked by google - rate limit calls
 
         # check direct or partial ratio match on title
@@ -262,7 +262,7 @@ def main():
 # ==========================
 # Global Variables
 # ==========================
-SEARCH_URL = "https://google.com/search?"
+GOOGLE_SEARCH_URL = "https://google.com/search?"
 USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:65.0) Gecko/20100101 Firefox/65.0"
 ID = "Manuscript ID"
 TITLE = "Manuscript Title"
