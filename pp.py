@@ -74,7 +74,6 @@ def pubmed_search(paper_title=None):
     returning list of results key/value of link, title, description
     """
     global PUBMED_SEARCH_URL
-    global USER_AGENT
     results = []
 
     if not paper_title:
@@ -108,20 +107,31 @@ def pubmed_search(paper_title=None):
         details = r.find('div', class_='details')
 
         link = pmc_base_url + anchors[0].get('href')
-        title = title.text
+        search_title = title.text
         description = ""
         if desc:
             description = desc.text
         if details:
             description = description + "\n" + details.text
 
+        # Get page results and pull title
+        response = get_page(link)
+        page_soup= BeautifulSoup(response, "html.parser")
+        soup_title = page_soup.find('h1', class_='content-title')
+        page_title = ""
+
+        if soup_title:
+            page_title = soup_title.text
+
         print("Link ", link)
-        print("Title", title)
+        print("Search Title", search_title)
+        print("Page Title " + page_title)
         print("Description", description, "\n")
 
         item = {
-            "title": title,
             "link": link,
+            "search_title": search_title,
+            "page_title": page_title,
             "description": description
         }
         results.append(item)
@@ -134,7 +144,6 @@ def google_search(paper_title=None):
     returning list of results key/value of link, title, description
     """
     global GOOGLE_SEARCH_URL
-    global USER_AGENT
     results = []
 
     if not paper_title:
@@ -300,42 +309,45 @@ def main():
 
         # check direct or partial ratio match on title
         for result in results[0:1]:
-            if rec[TITLE] in result["title"] is False:
+            if rec[TITLE] in result["search_title"] is False:
                 continue
 
-            direct = fuzz.ratio(rec[TITLE], result["title"])
-            partial = fuzz.partial_ratio(rec[TITLE], result["title"])
+            # validate actual page's title vs. input seach
+            direct = fuzz.ratio(rec[TITLE], result["page_title"])
+            partial = fuzz.partial_ratio(rec[TITLE], result["page_title"])
 
             # output results
             if not hdr_shown:
-                print("Paper ID,", "Paper Title,", "Search Title,", "Author, ", "MS Type, ", "Direct Match,", "Partial Match,", "Link, ", "Description")
+                print("Paper ID,", "Paper Title,", "Search Title,", "Result Page Title", "Author, ", "MS Type, ", "Direct Match,", "Partial Match,", "Link, ", "Description")
                 ws.write(row, 0, "Paper ID", bold)
                 ws.write(row, 1, "Paper Title", bold)
                 ws.write(row, 2, "Search Title", bold)
-                ws.write(row, 3, "Authors", bold)
-                ws.write(row, 4, "MS Type", bold)
-                ws.write(row, 5, "Direct Match", bold)
-                ws.write(row, 6, "Partial Match", bold)
-                ws.write(row, 7, "Link", bold)
-                ws.write(row, 8, "Description", bold)
+                ws.write(row, 3, "Result Page Title", bold)
+                ws.write(row, 4, "Authors", bold)
+                ws.write(row, 5, "MS Type", bold)
+                ws.write(row, 6, "Direct Match", bold)
+                ws.write(row, 7, "Partial Match", bold)
+                ws.write(row, 8, "Link", bold)
+                ws.write(row, 9, "Description", bold)
                 hdr_shown = True
 
             # ignore search results with poor mathes
             if partial < 60:
                 continue
 
-            print("%s,\"%s\",\"%s\",\"%s\",\"%s\",%.2f,%.2f,%s,%s" % (rec[ID], rec[TITLE], result["title"], rec[AUTHORS], rec[TYPE], direct, partial, result["link"], result["description"]))
+            print("%s,\"%s\",\"%s\",\"%s\",\"%s\", \"%s\",%.2f,%.2f,%s,%s" % (rec[ID], rec[TITLE], result["search_title"], result["page_title"], rec[AUTHORS], rec[TYPE], direct, partial, result["link"], result["description"]))
 
             row += 1
             ws.write(row, 0, rec[ID])
             ws.write(row, 1, rec[TITLE])
-            ws.write(row, 2, result["title"])
-            ws.write(row, 3, rec[AUTHORS])
-            ws.write(row, 4, rec[TYPE])
-            ws.write(row, 5, direct)
-            ws.write(row, 6, partial)
-            ws.write_url(row, 7, result["link"], string=result["link"])
-            ws.write(row, 8, result["description"])
+            ws.write(row, 2, result["search_title"])
+            ws.write(row, 3, result["page_title"])
+            ws.write(row, 4, rec[AUTHORS])
+            ws.write(row, 5, rec[TYPE])
+            ws.write(row, 6, direct)
+            ws.write(row, 7, partial)
+            ws.write_url(row, 8, result["link"], string=result["link"])
+            ws.write(row, 9, result["description"])
 
     wb.close()
 
