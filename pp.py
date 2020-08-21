@@ -167,14 +167,16 @@ def google_search(paper_title=None):
         spans = g.find_all('span', class_='st')
         if anchors and spans:
             link = anchors[0]['href']
-            title = g.find('h3').text
+            search_title = g.find('h3').text
             description = spans[0].text
+            page_title = ""
             #print("Link ", link)
             #print("Title", title)
             #print("Description", description)
             item = {
-                "title": title,
                 "link": link,
+                "search_title": search_title,
+                "page_title": page_title,
                 "description": description
             }
             results.append(item)
