@@ -115,13 +115,14 @@ def pubmed_search(paper_title=None):
             description = description + "\n" + details.text
 
         # Get page results and pull title
-        response = get_page(link)
-        page_soup= BeautifulSoup(response, "html.parser")
-        soup_title = page_soup.find('h1', class_='content-title')
         page_title = ""
+        response = get_page(link)
 
-        if soup_title:
-            page_title = soup_title.text
+        if response:
+            page_soup= BeautifulSoup(response, "html.parser")
+            soup_title = page_soup.find('h1', class_='content-title')
+            if soup_title:
+                page_title = soup_title.text
 
         print("Link ", link)
         print("Search Title", search_title)
