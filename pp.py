@@ -49,6 +49,25 @@ def is_valid_file(fname=None):
     fname = fname.strip()
     return os.path.isfile(fname)
 
+def get_page(url=None):
+    """HTTP Get request to given URL returns response HTML payload string"""
+    result = None
+    if not url:
+        return result
+
+    # desktop user-agent; expected by google in HTTP header
+    global USER_AGENT
+    headers = {"user-agent" : USER_AGENT}
+    resp = requests.get(url, headers=headers)
+
+    # check if valid response
+    if resp.status_code != 200:
+        err("Failed - unsuccessful response status code: " + str(resp.status_code) + " via URL " + url)
+        return result
+
+    result = resp.content
+    return result
+
 def pubmed_search(paper_title=None):
     """
     Applies a PubMed Central search for a given paper title
@@ -74,17 +93,12 @@ def pubmed_search(paper_title=None):
     url = PUBMED_SEARCH_URL + query
     #print(url)
 
-    # desktop user-agent; expected by google in HTTP header
-    headers = {"user-agent" : USER_AGENT}
-    resp = requests.get(url, headers=headers)
-
-    # check if valid response
-    if resp.status_code != 200:
-        err("Failed - unsuccessful response from PubMed Central status code: " + str(resp.status_code))
+    response = get_page(url)
+    if not response:
         return results
 
     # parse HTTP response and pull out search results
-    soup = BeautifulSoup(resp.content, "html.parser")
+    soup = BeautifulSoup(response, "html.parser")
 
     # PMC returns 20 results per page - only pull from first page results
     for r in soup.find_all('div', class_='rslt'):
@@ -132,17 +146,12 @@ def google_search(paper_title=None):
     url = GOOGLE_SEARCH_URL + query
     #print(url)
 
-    # desktop user-agent; expected by google in HTTP header
-    headers = {"user-agent" : USER_AGENT}
-    resp = requests.get(url, headers=headers)
-
-    # check if valid response
-    if resp.status_code != 200:
-        err("Failed - unsuccessful response from Google status code: " + str(resp.status_code))
+    response = get_page(url)
+    if not response:
         return results
 
     # parse HTTP response and pull out search results
-    soup = BeautifulSoup(resp.content, "html.parser")
+    soup = BeautifulSoup(response, "html.parser")
 
     for g in soup.find_all('div', class_='g'):
         anchors = g.find_all('a')
