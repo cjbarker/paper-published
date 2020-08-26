@@ -4,6 +4,7 @@ chardet==3.0.4
 fuzzywuzzy==0.18.0
 idna==2.9
 puremagic==1.8
+pytest==6.0.1
 python-Levenshtein==0.12.0
 requests==2.23.0
 soupsieve==2.0
