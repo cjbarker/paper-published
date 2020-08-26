@@ -28,17 +28,32 @@ def test_google_search():
     pass
 
 def test_extract_xlsx():
-    # TODO
-    pass
+    test_file = Path(os.getcwd() + "/test.xlsx")
+    assert not pp.extract_xlsx(test_file)
+    assert not pp.extract_xlsx(None, "foo")
+
+    # empty list - keyerror
+    result = pp.extract_xlsx(test_file, "First Name")
+    with pytest.raises(Exception) as e:
+        assert not result[0]['First Name']
+
+    # extract multiple headers
+    result = pp.extract_xlsx(test_file, ["First Name"])
+    assert result[0]['First Name'] == 'Jane'
+    result = pp.extract_xlsx(test_file, ["First Name", "Last Name", "Age"])
+    assert result[0]['First Name'] == 'Jane'
+    assert result[0]['Last Name'] == 'Doe'
+    assert result[0]['Age'] == 46
 
 def test_extract_csv():
     test_file = Path(os.getcwd() + "/test.csv")
     assert not pp.extract_csv(test_file)
     assert not pp.extract_csv(None, "foo")
 
-    # empty list
+    # empty list - keyerror
     result = pp.extract_csv(test_file, "First Name")
-    assert len(result) == 1
+    with pytest.raises(Exception) as e:
+        assert not result[0]['First Name']
 
     # extract multiple headers
     result = pp.extract_csv(test_file, ["First Name"])
