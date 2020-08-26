@@ -27,7 +27,6 @@ import time
 import calendar
 import urllib.parse
 import xlrd
-import puremagic
 import requests
 import xlsxwriter as xs
 from bs4 import BeautifulSoup
@@ -187,18 +186,6 @@ def google_search(paper_title=None):
             }
             results.append(item)
     return results
-
-def is_filetype(filename=None, search_str=None):
-    """
-    Applies magic byte (header) inspection to determine if of search file type.
-    """
-    if not search_str:
-        return False
-    results = puremagic.magic_file(filename)
-    for result in results:
-        if search_str.lower() in result.name.lower():
-            return True
-    return False
 
 def extract_xlsx(fname=None, search_hdrs=None):
     """
