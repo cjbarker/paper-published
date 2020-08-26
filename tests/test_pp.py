@@ -15,3 +15,24 @@ def test_get_page():
     bad_url = "https://23423098uasbaker.com"
     assert pp.get_page(good_url)
     assert not pp.get_page(bad_url)
+
+def test_is_filetype():
+    test_file = sys.argv[0]
+    assert pp.is_filetype(test_file, "py")
+
+def test_pubmed_search():
+    # TODO
+    pass
+
+def test_google_search():
+    # TODO
+    pass
+
+def test_extract_xlsx()
+    # TODO
+    pass
+
+def test_extract_csv():
+    # TODO
+    pass
+
