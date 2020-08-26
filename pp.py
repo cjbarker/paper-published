@@ -58,7 +58,12 @@ def get_page(url=None):
     # desktop user-agent; expected by google in HTTP header
     global USER_AGENT
     headers = {"user-agent" : USER_AGENT}
-    resp = requests.get(url, headers=headers)
+    try:
+        resp = requests.get(url, headers=headers)
+    except:
+        e = sys.exc_info()[0]
+        err("Failed connection: " + str(e) + " via URL " + url)
+        return result
 
     # check if valid response
     if resp.status_code != 200:

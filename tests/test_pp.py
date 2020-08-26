@@ -10,3 +10,8 @@ def test_is_valid_file():
     assert pp.is_valid_file("foo") is False
     assert pp.is_valid_file(test_file) is True
 
+def test_get_page():
+    good_url = "https://cjbarker.com"
+    bad_url = "https://23423098uasbaker.com"
+    assert pp.get_page(good_url)
+    assert not pp.get_page(bad_url)
