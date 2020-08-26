@@ -27,6 +27,13 @@ Install libraries
 ```
 pip3 install -r requirements.txt
 ```
+
+Testing
+All unit tests can be found in ./tests/ and are [pytest](https://docs.pytest.org/en/latest/)
+```
+pytest
+```
+
 ----
 
 ## Usage
