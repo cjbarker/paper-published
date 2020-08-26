@@ -236,7 +236,7 @@ def extract_csv(fname=None, search_hdrs=None):
     results = []
 
     if fname is None or search_hdrs is None:
-        err("Invalid CSV extraction for filename and column headers: " + fname + " ".join(search_hdrs))
+        err("Invalid CSV extraction for filename and column headers")
         return results
 
     result = {}
