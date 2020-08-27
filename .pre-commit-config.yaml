@@ -8,21 +8,21 @@ repos:
         name: isort
         stages: [commit]
         language: system
-        entry: source env/bin/activate; isort pp.py; deactivate
+        entry: isort pp.py
         types: [python]
 
       - id: black
         name: black
         stages: [commit]
         language: system
-        entry: source env/bin/activate; black pp.py; deactivate
+        entry: black pp.py
         types: [python]
 
       - id: flake8
         name: flake8
         stages: [commit]
         language: system
-        entry: source env/bin/activate; flake8 pp.py; deactivate
+        entry: flake8 pp.py
         types: [python]
         exclude: setup.cfg
 
@@ -30,5 +30,5 @@ repos:
         name: pytest
         stages: [commit]
         language: system
-        entry: source env/bin/activate; pytest; deactivate
+        entry: pytest
         types: [python]

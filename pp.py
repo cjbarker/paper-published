@@ -63,7 +63,7 @@ def get_page(url=None):
     headers = {"user-agent": USER_AGENT}
     try:
         resp = requests.get(url, headers=headers)
-    except:
+    except:  # noqa: E722
         e = sys.exc_info()[0]
         err("Failed connection: " + str(e) + " via URL " + url)
         return result
