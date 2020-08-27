@@ -8,6 +8,18 @@ import pytest
 import sys
 import os
 
+from os.path import dirname as d
+from os.path import abspath, join
+
+# Load in root dir to system path for easy access
+ROOT_DIR = d(d(abspath(__file__)))
+sys.path.append(ROOT_DIR)
+
+if ROOT_DIR.endswith("tests"):
+    TEST_DIR = str(ROOT_DIR)
+else:
+    TEST_DIR = str(Path(ROOT_DIR + "/tests"))
+
 def test_is_valid_file():
     test_file = sys.argv[0]
     assert pp.is_valid_file("foo") is False
@@ -19,16 +31,8 @@ def test_get_page():
     assert pp.get_page(good_url)
     assert not pp.get_page(bad_url)
 
-def test_pubmed_search():
-    # TODO
-    pass
-
-def test_google_search():
-    # TODO
-    pass
-
 def test_extract_xlsx():
-    test_file = Path(os.getcwd() + "/test.xlsx")
+    test_file = Path(TEST_DIR + "/test.xlsx")
     assert not pp.extract_xlsx(test_file)
     assert not pp.extract_xlsx(None, "foo")
 
@@ -46,7 +50,7 @@ def test_extract_xlsx():
     assert result[0]['Age'] == 46
 
 def test_extract_csv():
-    test_file = Path(os.getcwd() + "/test.csv")
+    test_file = Path(TEST_DIR + "/test.csv")
     assert not pp.extract_csv(test_file)
     assert not pp.extract_csv(None, "foo")
 
@@ -62,3 +66,12 @@ def test_extract_csv():
     assert result[0]['First Name'] == 'Jane'
     assert result[0]['Last Name'] == 'Doe'
     assert result[0]['Age'] == '46'
+
+def test_pubmed_search():
+    pass
+
+def test_google_search():
+    #search_term = "CJ Barker"
+    #result = pp.google_search(search_term)
+    #assert result
+    pass
