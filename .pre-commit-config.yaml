@@ -1,0 +1,11 @@
+default_language_version:
+  python: python3.7
+  repos:
+    repo: local
+    hooks:
+      - id: isort
+        name: isort
+        stages: [commit]
+        language: system
+        entry: source env/bin/active; isort pp.py
+        types: [python]
