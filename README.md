@@ -34,6 +34,11 @@ All unit tests can be found in ./tests/ and are [pytest](https://docs.pytest.org
 pytest
 ```
 
+Linting
+```
+flake8 pp.py
+```
+
 ----
 
 ## Usage
