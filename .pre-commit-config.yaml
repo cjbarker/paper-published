@@ -8,5 +8,12 @@ repos:
         name: isort
         stages: [commit]
         language: system
-        entry: source env/bin/active; isort pp.py
+        entry: source env/bin/activate; isort pp.py; deactivate
+        types: [python]
+
+      - id: black
+        name: black
+        stages: [commit]
+        language: system
+        entry: source env/bin/activate; black pp.py; deactivate
         types: [python]
