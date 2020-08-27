@@ -40,7 +40,7 @@ def test_extract_xlsx():
 
     # empty list - keyerror
     result = pp.extract_xlsx(test_file, "First Name")
-    with pytest.raises(Exception) as e:  # noqa F841
+    with pytest.raises(Exception):
         assert not result[0]["First Name"]
     # extract multiple headers
     result = pp.extract_xlsx(test_file, ["First Name"])
@@ -58,7 +58,7 @@ def test_extract_csv():
 
     # empty list - keyerror
     result = pp.extract_csv(test_file, "First Name")
-    with pytest.raises(Exception) as e:  # noqa F841
+    with pytest.raises(Exception):
         assert not result[0]["First Name"]
 
     # extract multiple headers
@@ -70,18 +70,27 @@ def test_extract_csv():
     assert result[0]["Age"] == "46"
 
 
-def test_pubmed_search():
-    pass
-
-
 def test_google_search():
     search_term = "CJ Barker"
     results = pp.google_search(search_term)
     assert results
     found = False
     for result in results:
-        print(result)
         if result["link"] == "https://cjbarker.com/":
+            found = True
+            break
+    assert found
+
+
+def test_pubmed_search():
+    search_term = (
+        "The Most Popular Smartphone Apps for Weight Loss: A Quality Assessment"
+    )
+    results = pp.pubmed_search(search_term)
+    assert results
+    found = False
+    for result in results:
+        if result["link"] == "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4704947/":
             found = True
             break
     assert found
