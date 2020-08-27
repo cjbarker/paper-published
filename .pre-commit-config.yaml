@@ -17,3 +17,18 @@ repos:
         language: system
         entry: source env/bin/activate; black pp.py; deactivate
         types: [python]
+
+      - id: flake8
+        name: flake8
+        stages: [commit]
+        language: system
+        entry: source env/bin/activate; flake8 pp.py; deactivate
+        types: [python]
+        exclude: setup.cfg
+
+      - id: pytest
+        name: pytest
+        stages: [commit]
+        language: system
+        entry: source env/bin/activate; pytest; deactivate
+        types: [python]

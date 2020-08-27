@@ -51,6 +51,12 @@ Code formatting
 black pp.py
 ```
 
+Git Hook
+Install pre-commit hook
+```
+pre-commit install
+```
+
 ----
 
 ## Usage
