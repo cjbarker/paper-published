@@ -45,6 +45,12 @@ For import module sorting
 isort pp.py
 ```
 
+Black
+Code formatting
+```
+black pp.py
+```
+
 ----
 
 ## Usage

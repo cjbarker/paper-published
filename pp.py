@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-#-*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 
 # ********************************************************
 # Script validates if paper title was published or not.
@@ -43,12 +43,14 @@ def err(msg=None):
     msg = msg + "\n"
     os.write(2, msg.encode())
 
+
 def is_valid_file(fname=None):
     """Validates if file exists"""
     if not fname:
         return False
     fname = fname.strip()
     return os.path.isfile(fname)
+
 
 def get_page(url=None):
     """HTTP Get request to given URL returns response HTML payload string"""
@@ -58,7 +60,7 @@ def get_page(url=None):
 
     # desktop user-agent; expected by google in HTTP header
     global USER_AGENT
-    headers = {"user-agent" : USER_AGENT}
+    headers = {"user-agent": USER_AGENT}
     try:
         resp = requests.get(url, headers=headers)
     except:
@@ -68,11 +70,17 @@ def get_page(url=None):
 
     # check if valid response
     if resp.status_code != 200:
-        err("Failed - unsuccessful response status code: " + str(resp.status_code) + " via URL " + url)
+        err(
+            "Failed - unsuccessful response status code: "
+            + str(resp.status_code)
+            + " via URL "
+            + url
+        )
         return result
 
     result = resp.content
     return result
+
 
 def pubmed_search(paper_title=None):
     """
@@ -87,16 +95,16 @@ def pubmed_search(paper_title=None):
 
     # extract out top level domain/URL for PMC
     n = 3
-    groups = PUBMED_SEARCH_URL.split('/')
-    groupings = '/'.join(groups[:n]), '/'.join(groups[n:])
+    groups = PUBMED_SEARCH_URL.split("/")
+    groupings = "/".join(groups[:n]), "/".join(groups[n:])
     pmc_base_url = groupings[0]
-    #print(pmc_base_url)
+    # print(pmc_base_url)
 
     # encode query string param before search
-    params = {'term': paper_title}
+    params = {"term": paper_title}
     query = urllib.parse.urlencode(params, quote_via=urllib.parse.quote)
     url = PUBMED_SEARCH_URL + query
-    #print(url)
+    # print(url)
 
     response = get_page(url)
     if not response:
@@ -106,13 +114,13 @@ def pubmed_search(paper_title=None):
     soup = BeautifulSoup(response, "html.parser")
 
     # PMC returns 20 results per page - only pull from first page results
-    for r in soup.find_all('div', class_='rslt'):
-        title = r.find('div', class_='title')
-        anchors = title.find_all('a')
-        desc = r.find('div', class_='desc')
-        details = r.find('div', class_='details')
+    for r in soup.find_all("div", class_="rslt"):
+        title = r.find("div", class_="title")
+        anchors = title.find_all("a")
+        desc = r.find("div", class_="desc")
+        details = r.find("div", class_="details")
 
-        link = pmc_base_url + anchors[0].get('href')
+        link = pmc_base_url + anchors[0].get("href")
         search_title = title.text
         description = ""
         if desc:
@@ -125,8 +133,8 @@ def pubmed_search(paper_title=None):
         response = get_page(link)
 
         if response:
-            page_soup= BeautifulSoup(response, "html.parser")
-            soup_title = page_soup.find('h1', class_='content-title')
+            page_soup = BeautifulSoup(response, "html.parser")
+            soup_title = page_soup.find("h1", class_="content-title")
             if soup_title:
                 page_title = soup_title.text
 
@@ -139,11 +147,12 @@ def pubmed_search(paper_title=None):
             "link": link,
             "search_title": search_title,
             "page_title": page_title,
-            "description": description
+            "description": description,
         }
         results.append(item)
 
     return results
+
 
 def google_search(paper_title=None):
     """
@@ -157,10 +166,10 @@ def google_search(paper_title=None):
         return results
 
     # encode query string param before search
-    params = {'q': paper_title}
+    params = {"q": paper_title}
     query = urllib.parse.urlencode(params, quote_via=urllib.parse.quote)
     url = GOOGLE_SEARCH_URL + query
-    #print(url)
+    # print(url)
 
     response = get_page(url)
     if not response:
@@ -169,25 +178,26 @@ def google_search(paper_title=None):
     # parse HTTP response and pull out search results
     soup = BeautifulSoup(response, "html.parser")
 
-    for g in soup.find_all('div', class_='g'):
-        anchors = g.find_all('a')
-        spans = g.find_all('span', class_='st')
+    for g in soup.find_all("div", class_="g"):
+        anchors = g.find_all("a")
+        spans = g.find_all("span", class_="st")
         if anchors and spans:
-            link = anchors[0]['href']
-            search_title = g.find('h3').text
+            link = anchors[0]["href"]
+            search_title = g.find("h3").text
             description = spans[0].text
             page_title = ""
-            #print("Link ", link)
-            #print("Title", title)
-            #print("Description", description)
+            # print("Link ", link)
+            # print("Title", title)
+            # print("Description", description)
             item = {
                 "link": link,
                 "search_title": search_title,
                 "page_title": page_title,
-                "description": description
+                "description": description,
             }
             results.append(item)
     return results
+
 
 def extract_xlsx(fname=None, search_hdrs=None):
     """
@@ -208,10 +218,7 @@ def extract_xlsx(fname=None, search_hdrs=None):
     headers = []
     for i in range(len(ws.row(0))):
         if ws.row(0)[i].value in search_hdrs:
-            item = {
-                "header": ws.row(0)[i].value,
-                "index": i
-            }
+            item = {"header": ws.row(0)[i].value, "index": i}
             headers.append(item)
 
     # extract data after first row
@@ -219,22 +226,21 @@ def extract_xlsx(fname=None, search_hdrs=None):
     for i in range(1, ws.nrows):
         result = {}
         for hdr in headers:
-            #print(hdr.get("header"))
-            #print(ws.row(i)[hdr.get("index")].value)
-            item = {
-                hdr.get("header"): ws.row(i)[hdr.get("index")].value
-            }
+            # print(hdr.get("header"))
+            # print(ws.row(i)[hdr.get("index")].value)
+            item = {hdr.get("header"): ws.row(i)[hdr.get("index")].value}
             result.update(item)
         results.append(result)
 
-    #print(results)
+    # print(results)
     return results
 
+
 def extract_csv(fname=None, search_hdrs=None):
-    '''
+    """
     Reads a CSV file and extracts all rows for column header names requested.
     Returns a list of dictionary with column name and corresponding row value in matrix
-    '''
+    """
     results = []
 
     if fname is None or search_hdrs is None:
@@ -247,14 +253,16 @@ def extract_csv(fname=None, search_hdrs=None):
         reader = csv.DictReader(f)
         for line in reader:
             result = dict((k, line[k]) for k in search_hdrs if k in line)
-            #print(result)
+            # print(result)
             results.append(result)
 
     return results
 
+
 # ----------------------------------------------------------------------
 # M A I N  L O G I C
 # ----------------------------------------------------------------------
+
 
 def main():
     global FILE_SEARCH_HDRS
@@ -268,9 +276,9 @@ def main():
     input = sys.argv[1]
 
     if is_valid_file(input):
-        if input.endswith('.csv'):
+        if input.endswith(".csv"):
             data = extract_csv(input, FILE_SEARCH_HDRS)
-        elif input.endswith('.xlsx'):
+        elif input.endswith(".xlsx"):
             data = extract_xlsx(input, FILE_SEARCH_HDRS)
         else:
             err("Unsupport file type - cannot convert: " + input)
@@ -278,12 +286,7 @@ def main():
         search_records = data
     else:
         # invalid file not exist - treat cmd line arg as title to search directly via Google
-        item = {
-            ID: "NA",
-            AUTHORS: "NA",
-            TYPE: "NA",
-            TITLE: input
-        }
+        item = {ID: "NA", AUTHORS: "NA", TYPE: "NA", TITLE: input}
         search_records.append(item)
 
     # search on title - only initial top 10 results from Google
@@ -292,17 +295,17 @@ def main():
 
     # output results to XLSX file named current timestamp
     ts = calendar.timegm(time.gmtime())
-    wb = xs.Workbook("paper-published-" + str(ts) +".xlsx")
+    wb = xs.Workbook("paper-published-" + str(ts) + ".xlsx")
     ws = wb.add_worksheet()
     # Add a bold format to use to highlight cells.
-    bold = wb.add_format({'bold': True})
+    bold = wb.add_format({"bold": True})
     row = 0
 
     for rec in search_records:
-        #print("Searching: " + rec[ID] + "-" + rec[TITLE])
-        #results = google_search(rec[TITLE])
+        # print("Searching: " + rec[ID] + "-" + rec[TITLE])
+        # results = google_search(rec[TITLE])
         results = pubmed_search(rec[TITLE])
-        time.sleep(THROTTLE_SECS)   # avoid being blocked by google - rate limit calls
+        time.sleep(THROTTLE_SECS)  # avoid being blocked by google - rate limit calls
 
         # check direct or partial ratio match on title
         for result in results[0:1]:
@@ -315,7 +318,18 @@ def main():
 
             # output results
             if not hdr_shown:
-                print("Paper ID,", "Paper Title,", "Search Title,", "Result Page Title", "Author, ", "MS Type, ", "Direct Match,", "Partial Match,", "Link, ", "Description")
+                print(
+                    "Paper ID,",
+                    "Paper Title,",
+                    "Search Title,",
+                    "Result Page Title",
+                    "Author, ",
+                    "MS Type, ",
+                    "Direct Match,",
+                    "Partial Match,",
+                    "Link, ",
+                    "Description",
+                )
                 ws.write(row, 0, "Paper ID", bold)
                 ws.write(row, 1, "Paper Title", bold)
                 ws.write(row, 2, "Search Title", bold)
@@ -332,7 +346,21 @@ def main():
             if partial < 60:
                 continue
 
-            print("%s,\"%s\",\"%s\",\"%s\",\"%s\", \"%s\",%.2f,%.2f,%s,%s" % (rec[ID], rec[TITLE], result["search_title"], result["page_title"], rec[AUTHORS], rec[TYPE], direct, partial, result["link"], result["description"]))
+            print(
+                '%s,"%s","%s","%s","%s", "%s",%.2f,%.2f,%s,%s'
+                % (
+                    rec[ID],
+                    rec[TITLE],
+                    result["search_title"],
+                    result["page_title"],
+                    rec[AUTHORS],
+                    rec[TYPE],
+                    direct,
+                    partial,
+                    result["link"],
+                    result["description"],
+                )
+            )
 
             row += 1
             ws.write(row, 0, rec[ID])
@@ -350,22 +378,20 @@ def main():
 
     sys.exit(0)
 
+
 # ==========================
 # Global Variables
 # ==========================
 GOOGLE_SEARCH_URL = "https://google.com/search?"
-PUBMED_SEARCH_URL = "https://www.ncbi.nlm.nih.gov/pmc/?" # PMC = PubMed Central
-USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:65.0) Gecko/20100101 Firefox/65.0"
+PUBMED_SEARCH_URL = "https://www.ncbi.nlm.nih.gov/pmc/?"  # PMC = PubMed Central
+USER_AGENT = (
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:65.0) Gecko/20100101 Firefox/65.0"
+)
 ID = "Manuscript ID"
 TITLE = "Manuscript Title"
-AUTHORS ="Author Names"
+AUTHORS = "Author Names"
 TYPE = "Manuscript Type"
-FILE_SEARCH_HDRS = [
-    ID,
-    TITLE,
-    AUTHORS,
-    TYPE
-]
+FILE_SEARCH_HDRS = [ID, TITLE, AUTHORS, TYPE]
 THROTTLE_SECS = 1
 
 if __name__ == "__main__":
