@@ -31,6 +31,10 @@ def test_get_page():
     bad_url = "https://23423098uasbaker.com"
     assert pp.get_page(good_url)
     assert not pp.get_page(bad_url)
+    assert not pp.get_page(None)
+    assert not pp.get_page(
+        "https://cjbarker.com/asdfasd"
+    )  # should result in none w/ 404 error
 
 
 def test_extract_xlsx():
@@ -72,6 +76,7 @@ def test_extract_csv():
 
 def test_google_search():
     search_term = "CJ Barker"
+    assert not pp.google_search(None)
     results = pp.google_search(search_term)
     assert results
     found = False
@@ -86,6 +91,7 @@ def test_pubmed_search():
     search_term = (
         "The Most Popular Smartphone Apps for Weight Loss: A Quality Assessment"
     )
+    assert not pp.pubmed_search(None)
     results = pp.pubmed_search(search_term)
     assert results
     found = False
