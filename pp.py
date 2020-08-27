@@ -20,17 +20,19 @@
 # If fails exit code is > 0
 # ********************************************************
 
+import calendar
+import csv
 import os
 import sys
-import csv
 import time
-import calendar
 import urllib.parse
-import xlrd
+
 import requests
+import xlrd
 import xlsxwriter as xs
 from bs4 import BeautifulSoup
 from fuzzywuzzy import fuzz
+
 
 def err(msg=None):
     """

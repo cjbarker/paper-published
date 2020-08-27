@@ -39,6 +39,12 @@ Linting
 flake8 pp.py
 ```
 
+Isort
+For import module sorting
+```
+isort pp.py
+```
+
 ----
 
 ## Usage
