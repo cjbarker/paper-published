@@ -172,7 +172,7 @@ def google_search(paper_title=None):
     Applies a google search for a given paper title
     returning list of results key/value of link, title, description
     """
-    global GOOGLE_SEARCH_URL
+    GOOGLE_SEARCH_URL
     results = []
 
     if not paper_title:
@@ -199,6 +199,7 @@ def google_search(paper_title=None):
             search_title = g.find("h3").text
             description = spans[0].text
             page_title = ""
+            page_authors = ""
             # print("Link ", link)
             # print("Title", title)
             # print("Description", description)
@@ -206,6 +207,7 @@ def google_search(paper_title=None):
                 "link": link,
                 "search_title": search_title,
                 "page_title": page_title,
+                "page_authors": page_authors,
                 "description": description,
             }
             results.append(item)
@@ -331,9 +333,10 @@ def main():
                 print(
                     "Paper ID,",
                     "Paper Title,",
+                    "Paper Authors, ",
                     "Search Title,",
                     "Result Page Title",
-                    "Author, ",
+                    "Result Page Authors",
                     "MS Type, ",
                     "Direct Match,",
                     "Partial Match,",
@@ -342,14 +345,15 @@ def main():
                 )
                 ws.write(row, 0, "Paper ID", bold)
                 ws.write(row, 1, "Paper Title", bold)
-                ws.write(row, 2, "Search Title", bold)
-                ws.write(row, 3, "Result Page Title", bold)
-                ws.write(row, 4, "Authors", bold)
-                ws.write(row, 5, "MS Type", bold)
-                ws.write(row, 6, "Direct Match", bold)
-                ws.write(row, 7, "Partial Match", bold)
-                ws.write(row, 8, "Link", bold)
-                ws.write(row, 9, "Description", bold)
+                ws.write(row, 2, "Paper Authors", bold)
+                ws.write(row, 3, "Search Title", bold)
+                ws.write(row, 4, "Result Page Title", bold)
+                ws.write(row, 5, "Result Page Authors", bold)
+                ws.write(row, 6, "MS Type", bold)
+                ws.write(row, 7, "Direct Match", bold)
+                ws.write(row, 8, "Partial Match", bold)
+                ws.write(row, 9, "Link", bold)
+                ws.write(row, 10, "Description", bold)
                 hdr_shown = True
 
             # ignore search results with poor mathes
@@ -357,13 +361,14 @@ def main():
                 continue
 
             print(
-                '%s,"%s","%s","%s","%s", "%s",%.2f,%.2f,%s,%s'
+                '%s,"%s","%s","%s","%s","%s","%s",%.2f,%.2f,%s,%s'
                 % (
                     rec[ID],
                     rec[TITLE],
+                    rec[AUTHORS],
                     result["search_title"],
                     result["page_title"],
-                    rec[AUTHORS],
+                    result["page_authors"],
                     rec[TYPE],
                     direct,
                     partial,
@@ -375,14 +380,15 @@ def main():
             row += 1
             ws.write(row, 0, rec[ID])
             ws.write(row, 1, rec[TITLE])
-            ws.write(row, 2, result["search_title"])
-            ws.write(row, 3, result["page_title"])
-            ws.write(row, 4, rec[AUTHORS])
-            ws.write(row, 5, rec[TYPE])
-            ws.write(row, 6, direct)
-            ws.write(row, 7, partial)
-            ws.write_url(row, 8, result["link"], string=result["link"])
-            ws.write(row, 9, result["description"])
+            ws.write(row, 2, rec[AUTHORS])
+            ws.write(row, 3, result["search_title"])
+            ws.write(row, 4, result["page_title"])
+            ws.write(row, 5, result["page_authors"])
+            ws.write(row, 6, rec[TYPE])
+            ws.write(row, 7, direct)
+            ws.write(row, 8, partial)
+            ws.write_url(row, 9, result["link"], string=result["link"])
+            ws.write(row, 10, result["description"])
 
     wb.close()
 
