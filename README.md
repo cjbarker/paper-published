@@ -74,10 +74,11 @@ python3 pp.py [<input-file>|<paper-title>]
 #     - input-file: XLS or CVS of papers' corresponding titles to search
 #     - title: individual paper title (string) to search on
 
-# run script and outputs to csv, top 10 search results from google with direct and partial fuzzy match scores
+# run script and outputs to csv, top 10 search results from PubMed Central with direct and partial fuzzy match scores
+
 python3 pp.py "Curing Cancer with Bleach"
 
-Paper ID, Paper Title, Search Title, Direct Match, Partial Match, Link
+Paper ID, Paper Title, Paper Authors, Search Title, Result Page Title, Result Page Authors, Direct Match, Partial Match, Link, Description
 NA,"Curing Cancer with Bleanch","'Miracle' Solution for Cancer is Actually Bleach - Healthline",46.00,65.00,https://www.healthline.com/health-news/no-this-miracle-solution-isnt-a-cure-for-cancer-autism-its-bleach
 NA,"Curing Cancer with Bleanch","Drinking Bleach Won't Cure Autism or Cancer, F.D.A. Says ...",33.00,46.00,https://www.nytimes.com/2019/08/13/health/drinking-bleach-autism-cancer.html
 NA,"Curing Cancer with Bleanch","No, Drinking Bleach Does Not Cure Cancer - Cancer Health",41.00,58.00,https://www.cancerhealth.com/article/drinking-bleach-cure-cancer
