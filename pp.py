@@ -59,7 +59,6 @@ def get_page(url=None):
         return result
 
     # desktop user-agent; expected by google in HTTP header
-    global USER_AGENT
     headers = {"user-agent": USER_AGENT}
     try:
         resp = requests.get(url, headers=headers)
@@ -87,7 +86,6 @@ def pubmed_search(paper_title=None):
     Applies a PubMed Central search for a given paper title
     returning list of results key/value of link, title, description
     """
-    global PUBMED_SEARCH_URL
     results = []
 
     if not paper_title:
@@ -130,24 +128,39 @@ def pubmed_search(paper_title=None):
 
         # Get page results and pull title
         page_title = ""
+        page_authors = ""
         response = get_page(link)
 
         if response:
+            # extract title
             page_soup = BeautifulSoup(response, "html.parser")
             soup_title = page_soup.find("h1", class_="content-title")
             if soup_title:
                 page_title = soup_title.text
 
+            # extract authors
+            metas = page_soup.find_all("meta")
+            if metas:
+                for meta in metas:
+                    if (
+                        meta.attrs["content"]
+                        and "name" in meta.attrs
+                        and meta.attrs["name"] == "citation_authors"
+                    ):
+                        page_authors = meta.attrs["content"]
+
         print("Link ", link)
         print("Search Title", search_title)
         print("Page Title " + page_title)
-        print("Description", description, "\n")
+        print("Description", description)
+        print("Authors", page_authors, "\n")
 
         item = {
             "link": link,
             "search_title": search_title,
             "page_title": page_title,
             "description": description,
+            "page_authors": page_authors,
         }
         results.append(item)
 
@@ -265,9 +278,6 @@ def extract_csv(fname=None, search_hdrs=None):
 
 
 def main():
-    global FILE_SEARCH_HDRS
-    global TITLE
-
     if len(sys.argv) < 2:
         err("Invalid input arguments: " + sys.argv[0] + " [<input-file>|<paper-title>]")
         sys.exit(1)

@@ -94,9 +94,15 @@ def test_pubmed_search():
     assert not pp.pubmed_search(None)
     results = pp.pubmed_search(search_term)
     assert results
-    found = False
+    found_link = False
+    found_authors = False
     for result in results:
         if result["link"] == "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4704947/":
-            found = True
-            break
-    assert found
+            found_link = True
+        if (
+            result["page_authors"]
+            == "Juliana Chen, Janet E Cade, Margaret Allman-Farinelli"
+        ):
+            found_authors = True
+    assert found_link
+    assert found_authors
