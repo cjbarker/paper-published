@@ -36,6 +36,20 @@ from rich.console import Console
 from rich.table import Table
 
 
+def print_restart(msg=None):
+    """Print to STDOUT message on same line (overwrite/print) current line"""
+    if not msg:
+        return
+
+    sys.stdout.write("\033[K")  # clears previous line's print
+
+    # color text
+    msg = "\033[0;32m" + msg + "\033[0;32m"
+    sys.stdout.write(msg)
+    sys.stdout.write("\r")
+    sys.stdout.flush()
+
+
 def err(msg=None):
     """
     Converts string to bytes & Outputs to stderr
@@ -46,23 +60,33 @@ def err(msg=None):
     os.write(2, msg.encode())
 
 
-def output_table(results=None):
+def output_table(results=None, console=None, table=None, add_hdr=False):
     """Outputs rich table of resutls data to STDOUT"""
     if not results:
         return
 
-    console = Console()
-    table = Table(show_header=True, header_style="bold magenta")
+    if isinstance(results, dict):
+        # load into list if only past single item (dictionary)
+        temp = []
+        temp.append(results)
+        results = temp
+
+    if not console:
+        console = Console()
+    if not table:
+        table = Table(show_header=True, header_style="bold magenta")
+
     # iterate list and keys and load as headers (pull from first list item's keys)
-    for key in results[0]:
-        table.add_column(key)
+    if add_hdr:
+        for key in results[0]:
+            table.add_column(key)
+
     # iterate values and insert into table
     for idx in range(len(results)):
         data_list = []
         for key in results[idx]:
             data_list.append(results[idx][key])
-        table.add_row(",".join(data_list))
-        # table.add_row(data_list)
+        table.add_row(*data_list)
     console.print(table)
 
 
@@ -124,7 +148,7 @@ def pubmed_search(paper_title=None):
     params = {"term": paper_title}
     query = urllib.parse.urlencode(params, quote_via=urllib.parse.quote)
     url = PUBMED_SEARCH_URL + query
-    # print(url)
+    print_restart("Searching PubMedCentral for: " + paper_title)
 
     response = get_page(url)
     if not response:
@@ -134,7 +158,13 @@ def pubmed_search(paper_title=None):
     soup = BeautifulSoup(response, "html.parser")
 
     # PMC returns 20 results per page - only pull from first page results
-    for r in soup.find_all("div", class_="rslt"):
+    pct_comp = 0
+    print_restart("PMC Processing Complete: " + str(pct_comp) + "%")
+    count = 0
+    divs = soup.find_all("div", class_="rslt")
+
+    for r in divs:
+        count += 1
         title = r.find("div", class_="title")
         anchors = title.find_all("a")
         desc = r.find("div", class_="desc")
@@ -151,7 +181,12 @@ def pubmed_search(paper_title=None):
         # Get page results and pull title
         page_title = ""
         page_authors = ""
+        print_restart("Querying Paper: " + link)
+        pct_comp = count / len(divs)
+        pct_comp = int(round(pct_comp * 100))
+        print_restart("PMC Processing Complete: " + str(pct_comp) + "%")
         response = get_page(link)
+        print_restart("Processing Paper Results...")
 
         if response:
             # extract title
@@ -171,12 +206,6 @@ def pubmed_search(paper_title=None):
                     ):
                         page_authors = meta.attrs["content"]
 
-        print("Link ", link)
-        print("Search Title", search_title)
-        print("Page Title " + page_title)
-        print("Description", description)
-        print("Authors", page_authors, "\n")
-
         item = {
             "link": link,
             "search_title": search_title,
@@ -185,6 +214,8 @@ def pubmed_search(paper_title=None):
             "page_authors": page_authors,
         }
         results.append(item)
+        print_restart("Results Appended to List")
+        # output_table(item)
 
     return results
 
@@ -222,9 +253,6 @@ def google_search(paper_title=None):
             description = spans[0].text
             page_title = ""
             page_authors = ""
-            # print("Link ", link)
-            # print("Title", title)
-            # print("Description", description)
             item = {
                 "link": link,
                 "search_title": search_title,
@@ -233,6 +261,7 @@ def google_search(paper_title=None):
                 "description": description,
             }
             results.append(item)
+            # output_table(item)
     return results
 
 
@@ -341,8 +370,13 @@ def main():
         results = pubmed_search(rec[TITLE])
         time.sleep(THROTTLE_SECS)  # avoid being blocked by google - rate limit calls
 
+        # Rich STDOUT
+        console = Console()
+        table = Table(show_header=True, header_style="bold magenta")
+        output_table(results, console, table, True)
+
         # check direct or partial ratio match on title
-        for result in results[0:1]:
+        for result in results:
             if rec[TITLE] in result["search_title"] is False:
                 continue
 
@@ -352,6 +386,7 @@ def main():
 
             # output results
             if not hdr_shown:
+                """
                 print(
                     "Paper ID,",
                     "Paper Title,",
@@ -365,6 +400,9 @@ def main():
                     "Link, ",
                     "Description",
                 )
+                """
+
+                # Excel Worksheet
                 ws.write(row, 0, "Paper ID", bold)
                 ws.write(row, 1, "Paper Title", bold)
                 ws.write(row, 2, "Paper Authors", bold)
@@ -382,6 +420,10 @@ def main():
             if partial < 60:
                 continue
 
+            # rich output to STDOUT
+            # output_table(result, console, table)
+
+            """
             print(
                 '%s,"%s","%s","%s","%s","%s","%s",%.2f,%.2f,%s,%s'
                 % (
@@ -398,6 +440,7 @@ def main():
                     result["description"],
                 )
             )
+            """
 
             row += 1
             ws.write(row, 0, rec[ID])

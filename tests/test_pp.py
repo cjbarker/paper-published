@@ -74,6 +74,20 @@ def test_extract_csv():
     assert result[0]["Age"] == "46"
 
 
+def test_output_table(capsys):
+    pp.output_table()
+    out, err = capsys.readouterr()
+    assert out == ""
+
+    # load in and test output
+    results = []
+    result = {"First Name": "Jane", "Last Name": "Doe", "Age": "46"}
+    results.append(result)
+    pp.output_table(results)
+    out, err = capsys.readouterr()
+    assert "│ Jane │ Doe │ 46" in out
+
+
 def test_google_search():
     search_term = "CJ Barker"
     assert not pp.google_search(None)
