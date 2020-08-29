@@ -26,6 +26,15 @@ def test_is_valid_file():
     assert pp.is_valid_file(test_file) is True
 
 
+def test_valid_engine():
+    assert not pp.is_valid_engine()
+    assert not pp.is_valid_engine("   ")
+    assert not pp.is_valid_engine("foo")
+    assert pp.is_valid_engine("GooGle")
+    assert pp.is_valid_engine("PmC")
+    assert pp.is_valid_engine("all")
+
+
 def test_get_page():
     good_url = "https://cjbarker.com"
     bad_url = "https://23423098uasbaker.com"

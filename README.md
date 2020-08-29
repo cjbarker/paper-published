@@ -1,6 +1,6 @@
 # PAPER PUBLISHED
 
-A web scrapper against Google to determine if a given paper's title has been published aka returns positive
+A web scrapper against Google, PubMed Central or both  to determine if a given paper's title has been published aka returns positive
 search result from google (the title matches).
 
 Will publish results to STDOUT as commaa seperated file (CSV).
@@ -70,13 +70,21 @@ source env/bin/activate
 
 Execute Script
 ```
-python3 pp.py [<input-file>|<paper-title>]
-#     - input-file: XLS or CVS of papers' corresponding titles to search
-#     - title: individual paper title (string) to search on
+python3 pp.py [-f <input-file> | -s <paper-title>]
 
-# run script and outputs to csv, top 10 search results from PubMed Central with direct and partial fuzzy match scores
+usage: Search for papers published - defaults to checking ALL search engines [-h] (-f FILE | -s SEARCH) [-e ENGINE]
 
-python3 pp.py "Curing Cancer with Bleach"
+optional arguments:
+  -h, --help            show this help message and exit
+  -f FILE, --file FILE  Input file to search on - CSV or XLST supported
+  -s SEARCH, --search SEARCH
+                        Individual paper title or term to search on
+  -e ENGINE, --engine ENGINE
+                        Search Engines to query GOOGLE, PMC, ALL
+
+# run script and outputs to csv, top 10 search results from Google, PubMed Central, or both  with direct and partial fuzzy match scores
+
+python3 pp.py -s "Curing Cancer with Bleach"
 
 Paper ID, Paper Title, Paper Authors, Search Title, Result Page Title, Result Page Authors, Direct Match, Partial Match, Link, Description
 NA,"Curing Cancer with Bleanch","'Miracle' Solution for Cancer is Actually Bleach - Healthline",46.00,65.00,https://www.healthline.com/health-news/no-this-miracle-solution-isnt-a-cure-for-cancer-autism-its-bleach

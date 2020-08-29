@@ -51,6 +51,13 @@ def print_restart(msg=None):
     sys.stdout.flush()
 
 
+def is_valid_engine(eng=None):
+    if not eng:
+        return False
+    eng = eng.upper()
+    return eng in VALID_SEARCH_ENGINES
+
+
 def err(msg=None):
     """
     Converts string to bytes & Outputs to stderr
@@ -344,10 +351,29 @@ def extract_csv(fname=None, search_hdrs=None):
 
 
 def main():
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(
+        "Search for papers published - defaults to checking ALL search engines"
+    )
     group = parser.add_mutually_exclusive_group(required=True)
-    group.add_argument("-f", "--file", action="store", help="Input file to search on")
-    group.add_argument("-s", "--search", action="store", help="Term to search on")
+    group.add_argument(
+        "-f",
+        "--file",
+        action="store",
+        help="Input file to search on - CSV or XLST supported",
+    )
+    group.add_argument(
+        "-s",
+        "--search",
+        action="store",
+        help="Individual paper title or term to search on",
+    )
+    parser.add_argument(
+        "-e",
+        "--engine",
+        action="store",
+        help="Search Engines to query " + ", ".join(VALID_SEARCH_ENGINES),
+        default="ALL",
+    )
     args = parser.parse_args()
 
     search_records = []
@@ -369,6 +395,14 @@ def main():
         item = {ID: "NA", AUTHORS: "NA", TYPE: "NA", TITLE: args.search}
         search_records.append(item)
 
+    engine = "ALL"
+    if args.engine:
+        if not is_valid_engine(args.engine):
+            err("Invalid search engine requested: " + args.engine)
+            sys.exit(3)
+        else:
+            engine = args.engine.upper()
+
     # search on title - only initial top 10 results from Google
     hdr_shown = False
     results = []
@@ -382,11 +416,13 @@ def main():
     row = 0
 
     for rec in search_records:
-        temp = pubmed_search(rec[TITLE])
-        results.extend(temp)
+        if engine == "ALL" or engine == "PMC":
+            temp = pubmed_search(rec[TITLE])
+            results.extend(temp)
 
-        temp = google_search(rec[TITLE])
-        results.extend(temp)
+        if engine == "ALL" or engine == "GOOGLE":
+            temp = google_search(rec[TITLE])
+            results.extend(temp)
 
         time.sleep(
             THROTTLE_SECS
@@ -487,6 +523,7 @@ def main():
 # ==========================
 GOOGLE_SEARCH_URL = "https://google.com/search?"
 PUBMED_SEARCH_URL = "https://www.ncbi.nlm.nih.gov/pmc/?"  # PMC = PubMed Central
+VALID_SEARCH_ENGINES = ["GOOGLE", "PMC", "ALL"]
 USER_AGENT = (
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:65.0) Gecko/20100101 Firefox/65.0"
 )
