@@ -235,7 +235,7 @@ def google_search(paper_title=None):
     params = {"q": paper_title}
     query = urllib.parse.urlencode(params, quote_via=urllib.parse.quote)
     url = GOOGLE_SEARCH_URL + query
-    # print(url)
+    print_restart("Searching Google for: " + paper_title)
 
     response = get_page(url)
     if not response:
@@ -243,10 +243,21 @@ def google_search(paper_title=None):
 
     # parse HTTP response and pull out search results
     soup = BeautifulSoup(response, "html.parser")
+    divs = soup.find_all("div", class_="g")
 
-    for g in soup.find_all("div", class_="g"):
+    pct_comp = 0
+    count = 0
+    print_restart("GOOG Processing Complete: " + str(pct_comp) + "%")
+
+    for g in divs:
         anchors = g.find_all("a")
         spans = g.find_all("span", class_="st")
+
+        pct_comp = count / len(divs)
+        pct_comp = int(round(pct_comp * 100))
+        print_restart("GOOG Processing Complete: " + str(pct_comp) + "%")
+        print_restart("Processing Paper Results...")
+
         if anchors and spans:
             link = anchors[0]["href"]
             search_title = g.find("h3").text
@@ -261,6 +272,7 @@ def google_search(paper_title=None):
                 "description": description,
             }
             results.append(item)
+            print_restart("Results Appended to List")
             # output_table(item)
     return results
 
@@ -367,7 +379,8 @@ def main():
     for rec in search_records:
         # print("Searching: " + rec[ID] + "-" + rec[TITLE])
         # results = google_search(rec[TITLE])
-        results = pubmed_search(rec[TITLE])
+        # results = pubmed_search(rec[TITLE])
+        results = google_search(rec[TITLE])
         time.sleep(THROTTLE_SECS)  # avoid being blocked by google - rate limit calls
 
         # Rich STDOUT
