@@ -32,6 +32,8 @@ import xlrd
 import xlsxwriter as xs
 from bs4 import BeautifulSoup
 from fuzzywuzzy import fuzz
+from rich.console import Console
+from rich.table import Table
 
 
 def err(msg=None):
@@ -42,6 +44,26 @@ def err(msg=None):
         return
     msg = msg + "\n"
     os.write(2, msg.encode())
+
+
+def output_table(results=None):
+    """Outputs rich table of resutls data to STDOUT"""
+    if not results:
+        return
+
+    console = Console()
+    table = Table(show_header=True, header_style="bold magenta")
+    # iterate list and keys and load as headers (pull from first list item's keys)
+    for key in results[0]:
+        table.add_column(key)
+    # iterate values and insert into table
+    for idx in range(len(results)):
+        data_list = []
+        for key in results[idx]:
+            data_list.append(results[idx][key])
+        table.add_row(",".join(data_list))
+        # table.add_row(data_list)
+    console.print(table)
 
 
 def is_valid_file(fname=None):
