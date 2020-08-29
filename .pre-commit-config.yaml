@@ -31,5 +31,5 @@ repos:
         pass_filenames: false
         stages: [commit]
         language: system
-        entry: pytest
+        entry: pytest --capture=tee-sys
         types: [python]
