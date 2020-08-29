@@ -20,6 +20,7 @@
 # If fails exit code is > 0
 # ********************************************************
 
+import argparse
 import calendar
 import csv
 import os
@@ -343,25 +344,29 @@ def extract_csv(fname=None, search_hdrs=None):
 
 
 def main():
-    if len(sys.argv) < 2:
-        err("Invalid input arguments: " + sys.argv[0] + " [<input-file>|<paper-title>]")
-        sys.exit(1)
+    parser = argparse.ArgumentParser()
+    group = parser.add_mutually_exclusive_group(required=True)
+    group.add_argument("-f", "--file", action="store", help="Input file to search on")
+    group.add_argument("-s", "--search", action="store", help="Term to search on")
+    args = parser.parse_args()
 
     search_records = []
-    input = sys.argv[1]
 
-    if is_valid_file(input):
-        if input.endswith(".csv"):
-            data = extract_csv(input, FILE_SEARCH_HDRS)
-        elif input.endswith(".xlsx"):
-            data = extract_xlsx(input, FILE_SEARCH_HDRS)
+    if args.file:
+        if not is_valid_file(args.file):
+            err("Invalid file - unable to process: " + args.file)
+            sys.exit(1)
+        if args.file.endswith(".csv"):
+            data = extract_csv(args.file, FILE_SEARCH_HDRS)
+        elif args.file.endswith(".xlsx"):
+            data = extract_xlsx(args.file, FILE_SEARCH_HDRS)
         else:
-            err("Unsupport file type - cannot convert: " + input)
+            err("Unsupport file type - cannot convert: " + args.file)
             sys.exit(2)
         search_records = data
-    else:
-        # invalid file not exist - treat cmd line arg as title to search directly via Google
-        item = {ID: "NA", AUTHORS: "NA", TYPE: "NA", TITLE: input}
+
+    if args.search:
+        item = {ID: "NA", AUTHORS: "NA", TYPE: "NA", TITLE: args.search}
         search_records.append(item)
 
     # search on title - only initial top 10 results from Google
