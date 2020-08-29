@@ -377,11 +377,15 @@ def main():
     row = 0
 
     for rec in search_records:
-        # print("Searching: " + rec[ID] + "-" + rec[TITLE])
-        # results = google_search(rec[TITLE])
-        # results = pubmed_search(rec[TITLE])
-        results = google_search(rec[TITLE])
-        time.sleep(THROTTLE_SECS)  # avoid being blocked by google - rate limit calls
+        temp = pubmed_search(rec[TITLE])
+        results.extend(temp)
+
+        temp = google_search(rec[TITLE])
+        results.extend(temp)
+
+        time.sleep(
+            THROTTLE_SECS
+        )  # avoid being blocked by google or PMC - rate limit calls
 
         # Rich STDOUT
         console = Console()
