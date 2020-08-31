@@ -2,6 +2,17 @@ default_language_version:
   python: python3.7
 
 repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v2.3.0
+    hooks:
+    - id: check-yaml
+    - id: end-of-file-fixer
+    - id: trailing-whitespace
+    - id: check-docstring-first
+    - id: check-merge-conflict
+    - id: mixed-line-ending
+      args: [--fix=lf]
+
   - repo: local
     hooks:
       - id: pyupgrade
