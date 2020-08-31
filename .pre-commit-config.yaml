@@ -50,6 +50,7 @@ repos:
         language: system
         entry: bandit pp.py
         types: [python]
+        exclude: /test
 
       - id: pytest
         name: pytest

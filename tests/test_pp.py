@@ -26,6 +26,34 @@ def test_is_valid_file():
     assert pp.is_valid_file(test_file) is True
 
 
+def test_extract_emails():
+    assert not pp.extract_emails(None)
+    assert not pp.extract_emails("")
+    assert not pp.extract_emails(" ")
+    assert not pp.extract_emails(" adsfljasdkl aslkjdf")
+    result = pp.extract_emails(" adsfljasdkl aslkjdf")
+    assert len(result) == 0
+    result = pp.extract_emails(" adsfljasdkl bob@mail.com aslkjdf")
+    assert len(result) == 1
+    assert pp.extract_emails(
+        " adsfljasdkl bob@mail.com aslkjdf asdlk me@mail.com asdfl;02"
+    )
+    result = pp.extract_emails(
+        " adsfljasdkl bob@mail.com aslkjdf asdlk me@mail.com asdfl;02"
+    )
+    assert len(result) == 2
+    assert "bob@mail.com" in result
+
+
+def test_is_valid_email():
+    assert not pp.is_valid_email(" ")
+    assert not pp.is_valid_email("davea;")
+    assert not pp.is_valid_email("davea;lkasd@")
+    assert not pp.is_valid_email("davealkasd")
+    assert not pp.is_valid_email("davealkasd@.")
+    assert pp.is_valid_email("davealkasd@mail.com")
+
+
 def test_valid_engine():
     assert not pp.is_valid_engine()
     assert not pp.is_valid_engine("   ")

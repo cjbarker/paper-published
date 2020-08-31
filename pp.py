@@ -24,6 +24,7 @@ import argparse
 import calendar
 import csv
 import os
+import re
 import sys
 import time
 import urllib.parse
@@ -49,6 +50,27 @@ def print_restart(msg=None):
     sys.stdout.write(msg)
     sys.stdout.write("\r")
     sys.stdout.flush()
+
+
+def extract_emails(txt=None):
+    if not txt:
+        return None
+    # match any non-whitespace chars with @ in middle
+    results = re.findall(r"\S+@\S+", txt)
+    return results
+
+
+def is_valid_email(email=None):
+    if not email:
+        return False
+    result = re.match(
+        "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$",
+        email,
+    )
+    if result:
+        return True
+    else:
+        return False
 
 
 def is_valid_engine(eng=None):
