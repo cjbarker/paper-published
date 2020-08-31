@@ -338,7 +338,7 @@ def extract_csv(fname=None, search_hdrs=None):
     with open(fname, "r", encoding="utf-8-sig") as f:
         reader = csv.DictReader(f)
         for line in reader:
-            result = dict((k, line[k]) for k in search_hdrs if k in line)
+            result = {k: line[k] for k in search_hdrs if k in line}
             # print(result)
             results.append(result)
 
