@@ -33,6 +33,13 @@ repos:
         types: [python]
         exclude: setup.cfg
 
+      - id: bandit-vulnerability-check
+        name: bandit
+        stages: [commit]
+        language: system
+        entry: bandit pp.py
+        types: [python]
+
       - id: pytest
         name: pytest
         pass_filenames: false
