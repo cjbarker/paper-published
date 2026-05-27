@@ -50,7 +50,7 @@ tokenize-rt==4.0.0
 toml==0.10.1
 typed-ast==1.4.1
 typing-extensions==3.7.4.3
-urllib3==1.25.9
+urllib3==2.7.0
 virtualenv==20.0.31
 xlrd==1.2.0
 XlsxWriter==1.2.8
