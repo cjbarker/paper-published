@@ -17,7 +17,7 @@ fuzzywuzzy==0.18.0
 gitdb==4.0.5
 GitPython==3.1.7
 identify==1.4.29
-idna==2.9
+idna==3.15
 iniconfig==1.0.1
 isort==5.4.2
 mccabe==0.6.1
